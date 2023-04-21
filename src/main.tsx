@@ -1,60 +1,34 @@
 import "@logseq/libs";
 
 import React from "react";
-import * as ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import ReactDOMServer from "react-dom/server";
 
 import { logseq as PL } from "../package.json";
-
-// @ts-expect-error
-const css = (t, ...args) => String.raw(t, ...args);
 
 const pluginId = PL.id;
 
 function main() {
   console.info(`#${pluginId}: MAIN`);
-  const root = ReactDOM.createRoot(document.getElementById("app")!);
 
-  root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
+  logseq.App.onMacroRendererSlotted(async ({slot, payload}) => {
+    const [type] = payload.arguments;
+    if (type.startsWith("task-heatmap")) {
+      const template = ReactDOMServer.renderToStaticMarkup(
+        <App />
+      )
 
-  function createModel() {
-    return {
-      show() {
-        logseq.showMainUI();
-      },
-    };
-  }
+      logseq.provideUI({
+        key: "task-heatmap" + "__" + slot,
+        slot,
+        reset: true,
+        template
+      })
 
-  logseq.provideModel(createModel());
-  logseq.setMainUIInlineStyle({
-    zIndex: 11,
-  });
-
-  const openIconName = "template-plugin-open";
-
-  logseq.provideStyle(css`
-    .${openIconName} {
-      opacity: 0.55;
-      font-size: 20px;
-      margin-top: 4px;
+      return true;
     }
-
-    .${openIconName}:hover {
-      opacity: 0.9;
-    }
-  `);
-
-  logseq.App.registerUIItem("toolbar", {
-    key: openIconName,
-    template: `
-      <div data-on-click="show" class="${openIconName}">⚙️</div>
-    `,
-  });
+  })
 }
 
 logseq.ready(main).catch(console.error);
