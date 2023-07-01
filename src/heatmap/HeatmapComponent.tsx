@@ -1,13 +1,13 @@
+import { add, getDate, isSameDay } from 'date-fns';
 import React from 'react';
-import { CompletionData, GraphData } from './data';
+import { HeatMapGrid } from 'react-grid-heatmap';
 import {
   formatDate,
   getDateFromWeekAndDay,
   getDayOfWeek,
   getWeekOfYear,
 } from '../utils';
-import { add, format, getDate, isSameDay } from 'date-fns';
-import { HeatMapGrid } from 'react-grid-heatmap';
+import { CompletionData, GraphData } from './data';
 
 interface GraphComponentProps {
   data: GraphData;

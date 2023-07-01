@@ -1,26 +1,24 @@
 import '@logseq/libs';
 
 import React from 'react';
-import './index.css';
 import ReactDOMServer from 'react-dom/server';
 
 import { logseq as PL } from '../package.json';
 import { getGraphData, toggleExpanded } from './heatmap/data';
-import { getCurrentDateNumber } from './utils';
 import { GraphComponent } from './heatmap/HeatmapComponent';
 
 const pluginId = PL.id;
 const BLOCK_NAME = 'better-tasks';
-const laxTag = '#lax';
+//const laxTag = '#lax';
 
-const main = () => {
+const main = async () => {
   console.info(`#${pluginId}: MAIN`);
 
   logseq.provideStyle(`
     .better-tasks-container {
       display: flex;
       flex-direction: row;
-      left: -20px;
+      left: -20px;src/config.ts
       top: 5px;
       position: relative;
     }
@@ -36,6 +34,9 @@ const main = () => {
       await toggleExpanded(uuid);
     },
   });
+
+  const config = await logseq.App.getUserConfigs();
+  console.info(config);
 
   logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
     const [type] = payload.arguments;
