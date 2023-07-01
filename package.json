@@ -1,5 +1,5 @@
 {
-  "name": "logseq-plugin-task-heatmap",
+  "name": "logseq-plugin-better-tasks",
   "version": "0.0.2",
   "main": "dist/index.html",
   "scripts": {
@@ -43,7 +43,7 @@
     "vite-plugin-logseq": "1.1.2"
   },
   "logseq": {
-    "id": "dsarman-logseq-task-heatmap",
+    "id": "dsarman-logseq-better-tasks",
     "icon": "./logo.svg"
   }
 }
