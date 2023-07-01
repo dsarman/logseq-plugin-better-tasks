@@ -57,10 +57,11 @@ export const getDateFromWeekAndDay = (
   weekNumber: number,
   dayNumber: number,
   startingDay: DayType,
-  startDate: Date = new Date(new Date().getFullYear(), 0, 1),
+  startDate?: Date ,
 ): Date => {
-  const date = addWeeks(startDate, weekNumber);
-  return addDays(date, dayNumber + startingDay);
+  const date = addWeeks(startDate ?? new Date(new Date().getFullYear(), 0, 1), weekNumber);
+  const offset = startDate ? 0 : startingDay;
+  return addDays(date, dayNumber + offset);
 };
 
 /**
