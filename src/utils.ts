@@ -8,6 +8,7 @@ import {
   getISOWeek,
   startOfWeek,
 } from 'date-fns';
+import { DayType } from './config';
 
 let _visible = logseq.isMainUIVisible;
 
@@ -55,16 +56,11 @@ export const useAppVisible = () => {
 export const getDateFromWeekAndDay = (
   weekNumber: number,
   dayNumber: number,
-  startDate?: Date
+  startingDay: DayType,
+  startDate: Date = new Date(new Date().getFullYear(), 0, 1),
 ): Date => {
-  let firstWeekStart = startDate;
-  if (!firstWeekStart) {
-    const currentYear = new Date().getFullYear();
-    const januaryFirst = new Date(currentYear, 0, 1);
-    firstWeekStart = startOfWeek(januaryFirst, { weekStartsOn: 1 }); // Monday as the start of the week
-  }
-  const date = addWeeks(firstWeekStart, weekNumber);
-  return addDays(date, dayNumber);
+  const date = addWeeks(startDate, weekNumber);
+  return addDays(date, dayNumber + startingDay);
 };
 
 /**
@@ -77,14 +73,39 @@ export const getCurrentDateNumber: () => number = () => {
   return dateNumber;
 };
 
+/**
+ * Formats a given date as a string in the format yyyy/MM/dd.
+ * @param {Date} date - The date to format.
+ * @returns {string} The formatted date string.
+ */
 export const formatDate = (date: Date): string => {
   return format(date, 'yyyy/MM/dd');
 };
 
-export const getDayOfWeek = (date: Date): number => {
-  return (getDay(date) || 7) - 1;
+/**
+ * Returns the day of the week for a given date, based on a specified starting day.
+ * @param {Date} date - The date to get the day of the week for.
+ * @param {number} startingDay - The starting day of the week (0 for Sunday, 1 for Monday, etc.).
+ * @returns {DayType} The day of the week as a DayType value.
+ */
+export const getDayOfWeek = (date: Date, startingDay: number): DayType => {
+  const day = getDay(date);
+  const difference = day - startingDay;
+  let result: DayType;
+  if (difference < 0) {
+    result = (difference + 7) as DayType;
+  } else {
+    result = difference as DayType;
+  }
+  console.log(day, startingDay, result);
+  return result;
 };
 
+/**
+ * Returns the ISO week number for a given date.
+ * @param {Date} date - The date to get the week number for.
+ * @returns {number} The ISO week number.
+ */
 export const getWeekOfYear = (date: Date): number => {
-  return getISOWeek(date);
+  return getISOWeek(date) - 1;
 };

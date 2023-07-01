@@ -1,6 +1,7 @@
 import { add, getDate, isSameDay } from 'date-fns';
 import React from 'react';
 import { HeatMapGrid } from 'react-grid-heatmap';
+import { DayType } from '../config';
 import {
   formatDate,
   getDateFromWeekAndDay,
@@ -19,13 +20,13 @@ const baseSize = 0.9;
  * An array of strings that represents the labels for the x-axis of the matrix for a year view.
  * Each element of the array is a string that represents the number of the week of the year.
  */
-const xLabelsYear = new Array(52).fill(0).map((_, i) => `${i}`);
+const xLabelsYear = new Array(52).fill(0).map((_, i) => `${i + 1}`);
 
-/**
- * An array of strings that represents the labels for the y-axis of the matrix for a year view.
- * Each element of the array is a string that represents the name of the day of the week.
- */
-const yLabelsYear = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const getYLabelsYear = (startingDay: DayType) => {
+  return [...dayNames.slice(startingDay), ...dayNames.slice(0, startingDay)];
+};
 
 const DAYS = 7;
 
@@ -50,13 +51,16 @@ const getXLabels = () => {
  * @param completions The completion data for all days.
  * @returns The completion data for the last 7 days.
  */
-const getLast7DaysData = (completions: CompletionData): CompletionData => {
+const getLast7DaysData = (
+  completions: CompletionData,
+  startingDay = 1
+): CompletionData => {
   const start = add(new Date(), { days: -7 });
   const result = [];
   for (let i = 0; i <= DAYS; i++) {
     const date = add(start, { days: i });
     const week = getWeekOfYear(date);
-    const dayOfWeek = getDayOfWeek(date);
+    const dayOfWeek = getDayOfWeek(date, startingDay);
     result.push(completions[dayOfWeek][week]);
   }
 
@@ -82,15 +86,15 @@ export const GraphComponent = ({ data }: GraphComponentProps) => {
         data={
           data.isExpanded
             ? data.completions
-            : getLast7DaysData(data.completions)
+            : getLast7DaysData(data.completions, data.startingDay)
         }
         xLabels={data.isExpanded ? xLabelsYear : getXLabels()}
-        yLabels={data.isExpanded ? yLabelsYear : ['']}
+        yLabels={data.isExpanded ? getYLabelsYear(data.startingDay) : ['']}
         // Reder cell with tooltip
         cellRender={(x, y, value) => {
           const date = data.isExpanded
-            ? getDateFromWeekAndDay(y, x)
-            : getDateFromWeekAndDay(x, y, startDate);
+            ? getDateFromWeekAndDay(y, x, data.startingDay)
+            : getDateFromWeekAndDay(x, y, data.startingDay, startDate);
           const style = { width: '100%', height: '100%' };
           return <div title={formatDate(date)} style={style} />;
         }}
@@ -107,8 +111,8 @@ export const GraphComponent = ({ data }: GraphComponentProps) => {
         })}
         cellStyle={(x, y, ratio) => {
           const date = data.isExpanded
-            ? getDateFromWeekAndDay(y, x)
-            : getDateFromWeekAndDay(x, y, startDate);
+            ? getDateFromWeekAndDay(y, x, data.startingDay)
+            : getDateFromWeekAndDay(x, y, data.startingDay, startDate);
           const isToday = isSameDay(date, new Date());
 
           return {

@@ -1,5 +1,6 @@
 import { eachDayOfInterval, endOfYear, parseISO, startOfYear } from 'date-fns';
 import { getDayOfWeek, getWeekOfYear } from '../utils';
+import { DayType } from '../config';
 
 /**
  * Get the content of a block
@@ -42,7 +43,7 @@ const parseDates = (input: string): Set<Date> => {
   const uniqueDates = new Set<Date>();
 
   for (const line of lines) {
-    if (line.includes('"DONE"')) {
+    if (line.includes('State "DONE" from')) {
       const match = line.match(dateRegex);
       if (match) {
         const dateObject = parseISO(match[1]);
@@ -69,6 +70,7 @@ export type GraphData = {
   uuid: string;
   isExpanded: boolean | null;
   completions: CompletionData;
+  startingDay: DayType;
 };
 
 /**
@@ -78,7 +80,7 @@ export type GraphData = {
  * @param dates A set of dates to transform into a matrix.
  * @returns A matrix of numbers that represents the days of the week and weeks of the year.
  */
-const transformDates = (dates: Set<Date>): CompletionData => {
+const transformDates = (dates: Set<Date>, startingDay: number): CompletionData => {
   const currentDate = new Date();
   const startDate = startOfYear(currentDate); // Adjusted start date
   const endDate = endOfYear(currentDate);
@@ -92,12 +94,12 @@ const transformDates = (dates: Set<Date>): CompletionData => {
 
   const dateSet = new Set(Array.from(dates).map(date => date.getTime()));
 
-  allDates.forEach(date => {
-    const dayOfWeek = getDayOfWeek(date);
+  allDates.forEach(async (date) => {
+    const dayOfWeek = getDayOfWeek(date, startingDay);
     const weekOfYear = getWeekOfYear(date);
 
     const isDateInList = dateSet.has(date.getTime());
-
+    console.log(date, dayOfWeek, weekOfYear, isDateInList)
     matrix[dayOfWeek][weekOfYear] = isDateInList ? 1 : 0;
   });
 
@@ -113,7 +115,8 @@ const transformDates = (dates: Set<Date>): CompletionData => {
  * @returns A matrix of numbers that represents the days of the week and weeks of the year.
  */
 export const getGraphData = async (
-  uuid: string
+  uuid: string,
+  startingDay: DayType
 ): Promise<GraphData | undefined> => {
   const blockContent = await getBlockContent(uuid);
   if (blockContent) {
@@ -122,7 +125,8 @@ export const getGraphData = async (
     return {
       uuid,
       isExpanded: checkIfExpanded(blockContent),
-      completions: transformDates(dates),
+      completions: transformDates(dates, startingDay),
+      startingDay
     };
   }
 };

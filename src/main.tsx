@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
 import { logseq as PL } from '../package.json';
+import { getStartingDay } from './config';
 import { getGraphData, toggleExpanded } from './heatmap/data';
 import { GraphComponent } from './heatmap/HeatmapComponent';
 
@@ -35,13 +36,13 @@ const main = async () => {
     },
   });
 
-  const config = await logseq.App.getUserConfigs();
-  console.info(config);
+  const startingDay = await getStartingDay();
 
   logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
     const [type] = payload.arguments;
+
     if (type.startsWith(BLOCK_NAME)) {
-      const content = await getGraphData(payload.uuid);
+      const content = await getGraphData(payload.uuid, startingDay);
       if (!content) {
         return false;
       }
