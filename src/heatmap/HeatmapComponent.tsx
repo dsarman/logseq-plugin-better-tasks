@@ -2,12 +2,7 @@ import { add, getDate, isSameDay } from 'date-fns';
 import React from 'react';
 import { HeatMapGrid } from 'react-grid-heatmap';
 import { DayType } from '../config';
-import {
-  formatDate,
-  getDateFromWeekAndDay,
-  getDayOfWeek,
-  getWeekOfYear,
-} from '../utils';
+import { formatDate, getDateFromWeekAndDay, getDayOfWeek, getWeekOfYear } from '../utils';
 import { CompletionData, GraphData } from './data';
 
 interface GraphComponentProps {
@@ -49,6 +44,7 @@ const getXLabels = () => {
 /**
  * Returns the completion data for the last 7 days.
  * @param completions The completion data for all days.
+ * @param startingDay The starting day of the week. 1 for Monday, 0 for Sunday. 1 by default.
  * @returns The completion data for the last 7 days.
  */
 const getLast7DaysData = (
@@ -67,6 +63,12 @@ const getLast7DaysData = (
   return [result];
 };
 
+const getDateFromData = (x: number, y: number, data: GraphData, startDate?: Date) => {
+  return data.isExpanded
+    ? getDateFromWeekAndDay(y, x, data.startingDay)
+    : getDateFromWeekAndDay(x, y, data.startingDay, startDate);
+};
+
 /**
  * The component that renders the heatmap.
  * @param data The data to render the heatmap with.
@@ -74,12 +76,16 @@ const getLast7DaysData = (
  */
 export const GraphComponent = ({ data }: GraphComponentProps) => {
   const startDate = data.isExpanded ? undefined : add(new Date(), { days: -7 });
+  const onCellClick = (x: number, y: number) => {
+    const date = getDateFromData(x, y, data, startDate);
+    console.info(date);
+  };
 
   return (
     <div
       style={{
         width: '100%',
-        fontFamily: 'sans-serif',
+        fontFamily: 'sans-serif'
       }}
     >
       <HeatMapGrid
@@ -90,24 +96,22 @@ export const GraphComponent = ({ data }: GraphComponentProps) => {
         }
         xLabels={data.isExpanded ? xLabelsYear : getXLabels()}
         yLabels={data.isExpanded ? getYLabelsYear(data.startingDay) : ['']}
-        // Reder cell with tooltip
-        cellRender={(x, y, value) => {
-          const date = data.isExpanded
-            ? getDateFromWeekAndDay(y, x, data.startingDay)
-            : getDateFromWeekAndDay(x, y, data.startingDay, startDate);
+        // Render cell with tooltip
+        cellRender={(x, y) => {
+          const date = getDateFromData(x, y, data, startDate);
           const style = { width: '100%', height: '100%' };
-          return <div title={formatDate(date)} style={style} />;
+          return <div title={formatDate(date)} style={style} onClick={() => onCellClick(x, y)} />;
         }}
         xLabelsStyle={index => ({
           color: index % 2 ? 'transparent' : '#777',
           fontSize: '.65rem',
-          whiteSpace: 'nowrap',
+          whiteSpace: 'nowrap'
         })}
         yLabelsStyle={() => ({
           fontSize: '.65rem',
           textTransform: 'uppercase',
           color: '#777',
-          whiteSpace: 'nowrap',
+          whiteSpace: 'nowrap'
         })}
         cellStyle={(x, y, ratio) => {
           const date = data.isExpanded
@@ -119,12 +123,11 @@ export const GraphComponent = ({ data }: GraphComponentProps) => {
             background: `rgb(12, 160, 44, ${ratio})`,
             fontSize: '.7rem',
             color: `rgb(0, 0, 0, ${ratio / 2 + 0.4})`,
-            borderColor: isToday ? '#FB0E7D' : 'white',
+            borderColor: isToday ? '#FB0E7D' : 'white'
           };
         }}
         cellHeight={`${baseSize}rem`}
-        xLabelsPos="bottom"
-        onClick={(x, y) => alert(`Clicked (${x}, ${y})`)}
+        xLabelsPos='bottom'
         square
       />
     </div>

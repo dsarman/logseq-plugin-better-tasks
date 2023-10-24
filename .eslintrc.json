@@ -6,7 +6,19 @@
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
-  "plugins": ["@typescript-eslint", "react-hooks"],
+  "plugins": [
+    "@typescript-eslint",
+    "react-hooks",
+    "eta"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.eta"
+      ],
+      "processor": "eta/eta"
+    }
+  ],
   "parser": "@typescript-eslint/parser",
   "rules": {
     "react-hooks/rules-of-hooks": "error",

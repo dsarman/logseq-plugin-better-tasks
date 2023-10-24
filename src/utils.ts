@@ -1,13 +1,6 @@
 import { LSPluginUserEvents } from '@logseq/libs/dist/LSPlugin.user';
 import React from 'react';
-import {
-  addDays,
-  addWeeks,
-  format,
-  getDay,
-  getISOWeek,
-  startOfWeek,
-} from 'date-fns';
+import { addDays, addWeeks, format, getDay, getISOWeek } from 'date-fns';
 import { DayType } from './config';
 
 let _visible = logseq.isMainUIVisible;
@@ -57,7 +50,7 @@ export const getDateFromWeekAndDay = (
   weekNumber: number,
   dayNumber: number,
   startingDay: DayType,
-  startDate?: Date ,
+  startDate?: Date
 ): Date => {
   const date = addWeeks(startDate ?? new Date(new Date().getFullYear(), 0, 1), weekNumber);
   const offset = startDate ? 0 : startingDay;
@@ -98,7 +91,6 @@ export const getDayOfWeek = (date: Date, startingDay: number): DayType => {
   } else {
     result = difference as DayType;
   }
-  console.log(day, startingDay, result);
   return result;
 };
 

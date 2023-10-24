@@ -21,8 +21,7 @@ const END = ':END:';
 const getLogbookContent = (content: string): string => {
   const start = content.indexOf(LOGBOOK) + LOGBOOK.length;
   const end = content.indexOf(END);
-  const logbook = content.substring(start, end);
-  return logbook;
+  return content.substring(start, end);
 };
 
 /**
@@ -63,7 +62,7 @@ export type CompletionData = number[][];
 
 /**
  * Represents the data for a completion graph.
- * @property expanded A boolean that represents whether the graph is expanded or not.
+ * @property isExpanded A boolean that represents whether the graph is expanded or not.
  * @property completions A matrix of numbers that represents the days of the week and weeks of the year.
  */
 export type GraphData = {
@@ -78,6 +77,7 @@ export type GraphData = {
  * Each cell of the matrix is either 0 or 1, where 0 means that the date is not in the logbook and 1 means that it is.
  *
  * @param dates A set of dates to transform into a matrix.
+ * @param startingDay The starting day of the week (0 for Sunday, 1 for Monday, etc.).
  * @returns A matrix of numbers that represents the days of the week and weeks of the year.
  */
 const transformDates = (dates: Set<Date>, startingDay: number): CompletionData => {
@@ -99,7 +99,6 @@ const transformDates = (dates: Set<Date>, startingDay: number): CompletionData =
     const weekOfYear = getWeekOfYear(date);
 
     const isDateInList = dateSet.has(date.getTime());
-    console.log(date, dayOfWeek, weekOfYear, isDateInList)
     matrix[dayOfWeek][weekOfYear] = isDateInList ? 1 : 0;
   });
 
@@ -112,6 +111,7 @@ const transformDates = (dates: Set<Date>, startingDay: number): CompletionData =
  * Each cell of the matrix is either 0 or 1, where 0 means that the date is not in the logbook and 1 means that it is.
  *
  * @param uuid The uuid of the block.
+ * @param startingDay The starting day of the week (0 for Sunday, 1 for Monday, etc.).
  * @returns A matrix of numbers that represents the days of the week and weeks of the year.
  */
 export const getGraphData = async (
