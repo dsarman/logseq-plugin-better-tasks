@@ -68,6 +68,7 @@ export type CompletionData = number[][];
 export type GraphData = {
   uuid: string;
   isExpanded: boolean | null;
+  dates: Set<Date>;
   completions: CompletionData;
   startingDay: DayType;
 };
@@ -125,6 +126,7 @@ export const getGraphData = async (
     return {
       uuid,
       isExpanded: checkIfExpanded(blockContent),
+      dates,
       completions: transformDates(dates, startingDay),
       startingDay
     };

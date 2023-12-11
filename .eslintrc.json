@@ -1,31 +1,28 @@
 {
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
   "plugins": [
-    "@typescript-eslint",
-    "react-hooks",
-    "eta"
-  ],
-  "overrides": [
-    {
-      "files": [
-        "*.eta"
-      ],
-      "processor": "eta/eta"
-    }
+    "@typescript-eslint"
   ],
   "parser": "@typescript-eslint/parser",
   "rules": {
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
     "import/prefer-default-export": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off"
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "no-console": [
+      "error",
+      {
+        "allow": [
+          "warn",
+          "error",
+          "info"
+        ]
+      }
+    ]
   }
 }
