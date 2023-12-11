@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.0.0...v1.1.0) (2023-12-11)
+
+
+### Features
+
+* removed React in favor of native HTML & JS ([df28fac](https://github.com/dsarman/logseq-plugin-better-tasks/commit/df28fac97ea3f76a2ce1ba75e34aa0ea6d09e5e8))
+
 # 1.0.0 (2023-07-02)
 
 
