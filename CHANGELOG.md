@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.1.0...v1.1.1) (2024-01-02)
+
+
+### Bug Fixes
+
+* quick fix for new year heatmap display ([768916c](https://github.com/dsarman/logseq-plugin-better-tasks/commit/768916c511fd389d66f63c6a51b6ae7cba60c830))
+
 # [1.1.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.0.0...v1.1.0) (2023-12-11)
 
 
