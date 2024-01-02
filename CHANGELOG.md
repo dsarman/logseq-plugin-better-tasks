@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.1.1...v1.1.2) (2024-01-02)
+
+
+### Bug Fixes
+
+* Resolve issue with condensed heatmap view at year-end transition ([95fd150](https://github.com/dsarman/logseq-plugin-better-tasks/commit/95fd150ac8fbd281af82d8da903d577c458499c1))
+
 ## [1.1.1](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.1.0...v1.1.1) (2024-01-02)
 
 
