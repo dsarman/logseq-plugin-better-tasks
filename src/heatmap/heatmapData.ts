@@ -1,4 +1,4 @@
-import { eachDayOfInterval, endOfYear, parseISO, startOfYear } from 'date-fns';
+import { eachDayOfInterval, endOfISOWeekYear, parseISO, startOfISOWeekYear } from 'date-fns';
 import { getDayOfWeek, getWeekOfYear } from '../utils';
 import { DayType } from '../config';
 
@@ -83,8 +83,8 @@ export type GraphData = {
  */
 const transformDates = (dates: Set<Date>, startingDay: number): CompletionData => {
   const currentDate = new Date();
-  const startDate = startOfYear(currentDate); // Adjusted start date
-  const endDate = endOfYear(currentDate);
+  const startDate = startOfISOWeekYear(currentDate); // Adjusted start date
+  const endDate = endOfISOWeekYear(currentDate);
   const dateInterval = { start: startDate, end: endDate };
   const allDates = eachDayOfInterval(dateInterval);
 

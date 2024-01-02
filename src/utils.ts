@@ -17,17 +17,8 @@ export const getDateFromWeekAndDay = (
   startDate?: Date
 ): Date => {
   const date = addWeeks(startDate ?? new Date(new Date().getFullYear(), 0, 1), weekNumber);
-  const offset = startDate ? 0 : startingDay;
+  const offset = startDate ? 0 : startingDay - 1;
   return addDays(date, dayNumber + offset);
-};
-
-/**
- * Returns the current date as a number in the format yyyyMMdd.
- * @returns The current date as a number in the format yyyyMMdd.
- */
-export const getCurrentDateNumber: () => number = (): number => {
-  const currentDate = new Date();
-  return Number(format(currentDate, 'yyyyMMdd'));
 };
 
 /**
