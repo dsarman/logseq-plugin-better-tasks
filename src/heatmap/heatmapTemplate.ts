@@ -139,7 +139,7 @@ const xAxisPartial = (data: GraphData) => {
  * @param payloadUuid - the UUID for the payload
  */
 export const getGridTemplate = (data: GraphData, payloadUuid: string) => {
-  const actualData = data.isExpanded ? data.completions : getLast7DaysData(data.completions, data.startingDay);
+  const actualData = data.isExpanded ? data.completions : getLast7DaysData(data.dates);
   const startDate = data.isExpanded ? undefined : add(new Date(), { days: -7 });
   const cells = actualData.map((row, x) => {
     return row.map((col, y) => {

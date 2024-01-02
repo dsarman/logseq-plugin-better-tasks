@@ -1,34 +1,36 @@
 import { CompletionData, GraphData } from './heatmapData';
-import { getDateFromWeekAndDay, getDayOfWeek, getWeekOfYear } from '../utils';
+import { getDateFromWeekAndDay } from '../utils';
 import { DayType } from '../config';
-import { add, getDate } from 'date-fns';
+import { add, getDate, startOfDay } from 'date-fns';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const getYLabelsYear = (startingDay: DayType) => {
   return [...DAY_NAMES.slice(startingDay), ...DAY_NAMES.slice(0, startingDay)];
 };
 const DAYS = 7;
+
 /**
  * Returns the completion data for the last 7 days.
- * @param completions The completion data for all days.
- * @param startingDay The starting day of the week. 1 for Monday, 0 for Sunday. 1 by default.
- * @returns The completion data for the last 7 days.
+ * @param dates A set of dates where each date represents a day that is marked in the logbook as DONE.
  */
 export const getLast7DaysData = (
-  completions: CompletionData,
-  startingDay = 1
+  dates: Set<Date>
 ): CompletionData => {
-  const start = add(new Date(), { days: -7 });
+  const start = startOfDay(add(new Date(), { days: -7 }));
+  const timeDates = new Set(Array.from(dates).map(date => date.getTime()));
   const result = [];
   for (let i = 0; i <= DAYS; i++) {
     const date = add(start, { days: i });
-    const week = getWeekOfYear(date);
-    const dayOfWeek = getDayOfWeek(date, startingDay);
-    result.push(completions[dayOfWeek][week]);
+    if (timeDates.has(date.getTime())) {
+      result.push(1);
+    } else {
+      result.push(0);
+    }
   }
 
   return [result];
 };
+
 /**
  * Returns a Date object for a given week number and day number.
  * @param x The x coordinate of the cell.
@@ -41,11 +43,13 @@ export const getDateFromData = (x: number, y: number, data: GraphData, startDate
     ? getDateFromWeekAndDay(y, x, data.startingDay)
     : getDateFromWeekAndDay(x, y, data.startingDay, startDate);
 };
+
 /**
  * An array of strings that represents the labels for the x-axis of the matrix for a year view.
  * Each element of the array is a string that represents the number of the week of the year.
  */
 export const longXLabels = new Array(52).fill(0).map((_, i) => `${i + 1}`);
+
 /**
  * Returns an array of strings that represents the labels for the x-axis of the matrix for a week view.
  * Each element of the array is a string that represents the day of the month.
