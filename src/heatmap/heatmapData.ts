@@ -1,27 +1,21 @@
-import { eachDayOfInterval, endOfISOWeekYear, parseISO, startOfISOWeekYear } from 'date-fns';
+import { eachDayOfInterval, endOfISOWeekYear, format, isSameDay, parseISO, startOfISOWeekYear } from 'date-fns';
 import { getDayOfWeek, getWeekOfYear } from '../utils';
 import { DayType } from '../config';
+import { checkIfExpanded, getBlockContent } from './heatmapHelpers';
 
-/**
- * Get the content of a block
- * @param uuid The uuid of the block
- */
-const getBlockContent = async (uuid: string): Promise<string | undefined> => {
-  const block = await logseq.Editor.getBlock(uuid);
-  return block?.content;
-};
-
+const NEWLINE = '\n';
 const LOGBOOK = ':LOGBOOK:';
 const END = ':END:';
+export const DATE_REGEX = /\[(\d{4}-\d{2}-\d{2})/;
 
 /**
  * Parses the content of a block and returns the logbook
  * @param content The content of the block
  */
-const getLogbookContent = (content: string): string => {
+export const getLogbookContent = (content: string): string => {
   const start = content.indexOf(LOGBOOK) + LOGBOOK.length;
   const end = content.indexOf(END);
-  return content.substring(start, end);
+  return content.substring(start, end - 1);
 };
 
 /**
@@ -37,13 +31,12 @@ const getLogbookContent = (content: string): string => {
  * ```
  */
 const parseDates = (input: string): Set<Date> => {
-  const lines = input.split('\n');
-  const dateRegex = /\[(\d{4}-\d{2}-\d{2})/;
+  const lines = input.split(NEWLINE);
   const uniqueDates = new Set<Date>();
 
   for (const line of lines) {
     if (line.includes('State "DONE" from')) {
-      const match = line.match(dateRegex);
+      const match = line.match(DATE_REGEX);
       if (match) {
         const dateObject = parseISO(match[1]);
         uniqueDates.add(dateObject);
@@ -52,6 +45,44 @@ const parseDates = (input: string): Set<Date> => {
   }
 
   return uniqueDates;
+};
+
+
+/**
+ * Formats a given date as a string in the format that is used in the logbook.
+ * @param date - The date to format.
+ */
+const formatDateForLogbook = (date: Date): string => {
+  return format(date, 'yyyy-MM-dd EEE HH:mm');
+};
+
+/**
+ * Toggles a date in a given task's logbook.
+ * @param date The date to toggle.
+ * @param wholeBlock The whole task block content.
+ */
+export const toggleTaskRecordText = (date: Date, wholeBlock: string): string => {
+  const logbook = getLogbookContent(wholeBlock);
+
+  const lines = logbook.split(NEWLINE);
+  const doneLineIndex = lines.findIndex(line => {
+    const lineDateMatch = line.match(DATE_REGEX);
+    if (lineDateMatch) {
+      const lineDate = parseISO(lineDateMatch[1]);
+      return isSameDay(date, lineDate);
+    }
+    return false;
+  });
+
+  if (doneLineIndex > -1) {
+    lines.splice(doneLineIndex, 1);
+  } else {
+    const newLine = `* State "DONE" from "LATER" [${formatDateForLogbook(date)}]`;
+    lines.push(newLine);
+  }
+
+  const newLogbook = lines.join(NEWLINE);
+  return wholeBlock.replace(logbook, newLogbook);
 };
 
 /**
@@ -133,54 +164,3 @@ export const getGraphData = async (
   }
 };
 
-/**
- * Checks if a given string contains a Logseq block with the Better Tasks plugin renderer and returns whether it is expanded or not.
- *
- * @param {string} text - The text to check for the Better Tasks plugin renderer.
- * @returns {boolean | null} - Returns true if the block is expanded, false if it is not expanded, and null if the block does not contain the Better Tasks plugin renderer.
- */
-const checkIfExpanded = (text: string): boolean | null => {
-  if (text.includes('{{renderer better-tasks expanded}}')) {
-    return true;
-  } else if (text.includes('{{renderer better-tasks}}')) {
-    return false;
-  } else {
-    return null;
-  }
-};
-
-/**
- * Toggles the expanded state of a Logseq block with the Better Tasks plugin renderer.
- *
- * @param {string} text - The text of the Logseq block.
- * @returns {string} - The updated text with the expanded state toggled.
- */
-const toggleExpandedText = (text: string): string => {
-  if (text.includes('{{renderer better-tasks expanded}}')) {
-    return text.replace(
-      /{{renderer better-tasks expanded}}/g,
-      '{{renderer better-tasks}}'
-    );
-  } else if (text.includes('{{renderer better-tasks}}')) {
-    return text.replace(
-      /{{renderer better-tasks}}/g,
-      '{{renderer better-tasks expanded}}'
-    );
-  } else {
-    return text;
-  }
-};
-
-/**
- * Toggles the expanded state of a Logseq block with the Better Tasks plugin renderer.
- *
- * @param {string} uuid - The uuid of the Logseq block.
- * @returns {Promise<void>} - A Promise that resolves when the block has been updated.
- */
-export const toggleExpanded = async (uuid: string): Promise<void> => {
-  const blockContent = await getBlockContent(uuid);
-  if (blockContent) {
-    const updatedText = toggleExpandedText(blockContent);
-    await logseq.Editor.updateBlock(uuid, updatedText);
-  }
-};

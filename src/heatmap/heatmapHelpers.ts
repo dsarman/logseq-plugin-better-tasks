@@ -1,4 +1,4 @@
-import { CompletionData, GraphData } from './heatmapData';
+import { CompletionData, GraphData, toggleTaskRecordText } from './heatmapData';
 import { getDateFromWeekAndDay } from '../utils';
 import { DayType } from '../config';
 import { add, getDate, startOfDay } from 'date-fns';
@@ -64,4 +64,75 @@ export const getShortXLabels = () => {
     result.push(`${dayOfMonth}`);
   }
   return result;
+};
+
+/**
+ * Get the content of a block
+ * @param uuid The uuid of the block
+ */
+export const getBlockContent = async (uuid: string): Promise<string | undefined> => {
+  const block = await logseq.Editor.getBlock(uuid);
+  return block?.content;
+};
+
+/**
+ * Checks if a given string contains a Logseq block with the Better Tasks plugin renderer and returns whether it is expanded or not.
+ *
+ * @param {string} text - The text to check for the Better Tasks plugin renderer.
+ * @returns {boolean | null} - Returns true if the block is expanded, false if it is not expanded, and null if the block does not contain the Better Tasks plugin renderer.
+ */
+export const checkIfExpanded = (text: string): boolean | null => {
+  if (text.includes('{{renderer better-tasks expanded}}')) {
+    return true;
+  } else if (text.includes('{{renderer better-tasks}}')) {
+    return false;
+  } else {
+    return null;
+  }
+};
+
+/**
+ * Toggles the expanded state of a Logseq block with the Better Tasks plugin renderer.
+ *
+ * @param {string} text - The text of the Logseq block.
+ * @returns {string} - The updated text with the expanded state toggled.
+ */
+const toggleExpandedText = (text: string): string => {
+  if (text.includes('{{renderer better-tasks expanded}}')) {
+    return text.replace(
+      /{{renderer better-tasks expanded}}/g,
+      '{{renderer better-tasks}}'
+    );
+  } else if (text.includes('{{renderer better-tasks}}')) {
+    return text.replace(
+      /{{renderer better-tasks}}/g,
+      '{{renderer better-tasks expanded}}'
+    );
+  } else {
+    return text;
+  }
+};
+
+/**
+ * Toggles the expanded state of a Logseq block with the Better Tasks plugin renderer.
+ *
+ * @param {string} uuid - The uuid of the Logseq block.
+ * @returns {Promise<void>} - A Promise that resolves when the block has been updated.
+ */
+export const toggleExpanded = async (uuid: string): Promise<void> => {
+  const blockContent = await getBlockContent(uuid);
+  if (blockContent) {
+    const updatedText = toggleExpandedText(blockContent);
+    await logseq.Editor.updateBlock(uuid, updatedText);
+  }
+};
+
+
+export const toggleTaskRecord = async (uuid: string, date: Date): Promise<void> => {
+  const blockContent = await getBlockContent(uuid);
+  if (blockContent) {
+    const updatedText = toggleTaskRecordText(date, blockContent);
+    await logseq.Editor.updateBlock(uuid, updatedText);
+  }
+
 };

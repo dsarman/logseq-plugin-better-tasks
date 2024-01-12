@@ -96,8 +96,8 @@ export const getHeatmapStyle = () => `
  * @param isToday - whether the cell represents today
  * @param title - the title for the cell
  */
-const cellPartial = (isCompleted: boolean, isToday: boolean, title: string) => `
-    <div class='${GRID_ITEM_CLASS} ${isCompleted ? 'completed' : ''} ${isToday ? 'today-item' : ''}' title='${title}'>
+const cellPartial = (isCompleted: boolean, isToday: boolean, title: string, date: Date, payloadUuid: string) => `
+    <div  data-uuid='${payloadUuid}' data-date='${date.toISOString()}' data-on-click='toggleTaskRecord' class='${GRID_ITEM_CLASS} ${isCompleted ? 'completed' : ''} ${isToday ? 'today-item' : ''}' title='${title}'>
     </div>
 `;
 
@@ -146,7 +146,7 @@ export const getGridTemplate = (data: GraphData, payloadUuid: string) => {
       const date = getDateFromData(x, y, data, startDate);
       const isToday = isSameDay(date, new Date());
       const title = formatDate(date);
-      return cellPartial(col === 1, isToday, title);
+      return cellPartial(col === 1, isToday, title, date, payloadUuid);
     }).join('\n');
   }).join('\n');
 

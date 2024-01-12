@@ -2,8 +2,9 @@ import '@logseq/libs';
 
 import { logseq as PL } from '../package.json';
 import { getStartingDay } from './config';
-import { getGraphData, toggleExpanded } from './heatmap/heatmapData';
+import { getGraphData } from './heatmap/heatmapData';
 import { getGridTemplate, getHeatmapStyle } from './heatmap/heatmapTemplate';
+import { toggleExpanded, toggleTaskRecord } from './heatmap/heatmapHelpers';
 
 const pluginId = PL.id;
 const BLOCK_NAME = 'better-tasks';
@@ -32,6 +33,12 @@ const main = async () => {
     toggleHeatmap: async (e: any) => {
       const { uuid } = e.dataset;
       await toggleExpanded(uuid);
+    },
+    toggleTaskRecord: async (e: any) => {
+      const { uuid, date } = e.dataset;
+
+      const dateObj = new Date(date);
+      await toggleTaskRecord(uuid, dateObj);
     }
   });
 
