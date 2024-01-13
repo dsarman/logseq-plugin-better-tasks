@@ -5,21 +5,30 @@ import { formatDate } from '../utils';
 import { getDateFromData, getLast7DaysData, getShortXLabels, getYLabelsYear, longXLabels } from './heatmapHelpers';
 
 const CELL_SIZE = '14px';
-const GRID_ITEM_CLASS = 'grid-item';
-const HEATMAP_LABEL_CLASS = 'heatmap-label';
+const CSS_PREFIX = 'bt-';
+const GRID_ITEM_CLASS = `${CSS_PREFIX}grid-item`;
+const HEATMAP_LABEL_CLASS = `${CSS_PREFIX}heatmap-label`;
+const ROOT_CONTAINER_CLASS = `${CSS_PREFIX}root-container`;
+const HEATMAP_CONTAINER_CLASS = `${CSS_PREFIX}heatmap-container`;
+const HEATMAP_Y_AXIS_CLASS = `${CSS_PREFIX}heatmap-y-axis`;
+const HEATMAP_X_AXIS_CLASS = `${CSS_PREFIX}heatmap-x-axis`;
+const HEATMAP_TOGGLE_CLASS = `${CSS_PREFIX}heatmap-toggle`;
+const HEATMAP_TOGGLE_SVG_CLASS = `${CSS_PREFIX}heatmap-toggle-svg`;
+const GRID_CONTAINER_CLASS = `${CSS_PREFIX}grid-container`;
+
 
 /**
  * Generates the CSS for the heatmap
  */
 export const getHeatmapStyle = () => `
-    .root-container {
+    .${ROOT_CONTAINER_CLASS} {
         display:flex;
         flex-direction:column;
         width:100%;
         left: -20px;
         position: relative;
     }
-    .heatmap-container {
+    .${HEATMAP_CONTAINER_CLASS} {
         display:flex;
         flex-direction:row;
         justify-content:initial;
@@ -32,22 +41,22 @@ export const getHeatmapStyle = () => `
         color:#777;
         white-space:nowrap
     }
-    .heatmap-y-axis {
+    .${HEATMAP_Y_AXIS_CLASS} {
         display:flex;
         flex-direction:column;
     }
-    .heatmap-y-axis .${HEATMAP_LABEL_CLASS} {
+    .${HEATMAP_Y_AXIS_CLASS} .${HEATMAP_LABEL_CLASS} {
         padding:0 0.2rem;
     }
-    .heatmap-x-axis {
+    .${HEATMAP_X_AXIS_CLASS} {
         display: grid;
     }
 
-    .heatmap-x-axis .${HEATMAP_LABEL_CLASS} {
+    .${HEATMAP_X_AXIS_CLASS} .${HEATMAP_LABEL_CLASS} {
         text-align:center;
         width: ${CELL_SIZE};
     }
-    .grid-container {
+    .${GRID_CONTAINER_CLASS} {
         cursor: pointer;
         display: grid;
 
@@ -59,29 +68,29 @@ export const getHeatmapStyle = () => `
         width: ${CELL_SIZE};
         height: ${CELL_SIZE};
         border-width: 1px 1px 0 0;
-        border-color: var(--ls-primary-text-color);
+        border-color: var(--ls-primary-text-color, grey);
         border-radius: 4px;
     }
 
     .${GRID_ITEM_CLASS}.today-item {
-        border-color: var(--ct-warning-color) ;
+        border-color: var(--ct-warning-color, pink) ;
     }
 
     .${GRID_ITEM_CLASS}.completed {
-        background-color: var(--ct-success-color);
+        background-color: var(--ct-success-color, green);
     }
 
     .${GRID_ITEM_CLASS}:hover {
         filter: brightness(85%);
     }
 
-    .heatmap-toggle {
+    .${HEATMAP_TOGGLE_CLASS} {
         width: 16px;
         height: 16px;
         position: relative;
     }
 
-    .heatmap-toggle-svg {
+    .${HEATMAP_TOGGLE_SVG_CLASS} {
         position: absolute;
         top: 0;
         left: 0;
@@ -116,8 +125,8 @@ const yAxisPartial = (startingDay: DayType) => {
  * @param payloadUuid - the UUID for the payload
  */
 const arrowPartial = (expanded: boolean | null, payloadUuid: string) => `
-  <button class='heatmap-toggle rotating-arrow ${expanded ? 'not-collapsed' : 'collapsed'}' data-uuid='${payloadUuid}' data-on-click='toggleHeatmap'>
-    <svg class='heatmap-toggle-svg' aria-hidden='true' viewBox='0 0 192 512' fill='currentColor'>
+  <button class='${HEATMAP_TOGGLE_CLASS} rotating-arrow ${expanded ? 'not-collapsed' : 'collapsed'}' data-uuid='${payloadUuid}' data-on-click='toggleHeatmap'>
+    <svg class='${HEATMAP_TOGGLE_SVG_CLASS}' aria-hidden='true' viewBox='0 0 192 512' fill='currentColor'>
       <path d='M0 384.662V127.338c0-17.818 21.543-26.741 34.142-14.142l128.662 128.662c7.81 7.81 7.81 20.474 0 28.284L34.142 398.804C21.543 411.404 0 402.48 0 384.662z' fill-rule='evenodd'>
       </path>
     </svg>
@@ -161,17 +170,17 @@ export const getGridTemplate = (data: GraphData, payloadUuid: string) => {
   `;
 
   return `
-      <div class='root-container'>
-        <div class='heatmap-container'>
+      <div class='${ROOT_CONTAINER_CLASS}'>
+        <div class='${HEATMAP_CONTAINER_CLASS}'>
           ${arrowPartial(data.isExpanded, payloadUuid)}
-          <div class='heatmap-y-axis'>
+          <div class='${HEATMAP_Y_AXIS_CLASS}'>
             ${data.isExpanded ? yAxisPartial(data.startingDay) : ''}
           </div>
           <div style='display: flex; flex-direction: column'>
-            <div class='grid-container' style='${containerStyle}' >
+            <div class='${GRID_CONTAINER_CLASS}' style='${containerStyle}' >
               ${cells}
             </div>
-            <div class='heatmap-x-axis' style='${xAxisStyle}'>
+            <div class='${HEATMAP_X_AXIS_CLASS}' style='${xAxisStyle}'>
               ${xAxisPartial(data)}
             </div>
           </div>
