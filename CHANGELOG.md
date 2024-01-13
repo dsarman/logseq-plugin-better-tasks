@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.1.2...v1.2.0) (2024-01-13)
+
+
+### Bug Fixes
+
+* set default colors if theme variables not found ([7476049](https://github.com/dsarman/logseq-plugin-better-tasks/commit/7476049f767f9a5515e8c2376bc8813232f741f1))
+
+
+### Features
+
+* allow toggling of tasks from LATER to DONE and back by clicking on the heatmap ([079c959](https://github.com/dsarman/logseq-plugin-better-tasks/commit/079c959f2b5e7c1c05d3a4eca82f0e12c164f76b))
+
 ## [1.1.2](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.1.1...v1.1.2) (2024-01-02)
 
 
