@@ -10,7 +10,7 @@ Allows you to visualize your repeating task completion over last several days, o
 
 #### Usage
 
-Just put the text `{{renderer better-tasks}}` or `{{renderer better-tasks expaned}}` (for the whole year view) in the
+Just put the text `{{renderer better-tasks}}` or `{{renderer better-tasks expanded}}` (for the whole year view) in the
 end of a block containing the repeating task you want to visualize.
 The end result should look like this:
 
