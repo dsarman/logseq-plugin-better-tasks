@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.2.0...v1.3.0) (2024-05-01)
+
+
+### Features
+
+* now possible to view heatmap data for tasks in journal pages which are linked to the same page ([50010d4](https://github.com/dsarman/logseq-plugin-better-tasks/commit/50010d423324ca3e40ef5c5337c6c181a2c8ce75))
+
 # [1.2.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.1.2...v1.2.0) (2024-01-13)
 
 
