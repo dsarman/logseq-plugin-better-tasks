@@ -1,7 +1,7 @@
 import '@logseq/libs';
 
 import { logseq as PL } from '../package.json';
-import { getStartingDay } from './config';
+import { DayType, getStartingDay } from './config';
 import { getGraphData } from './heatmap/heatmapData';
 import { getGridTemplate, getHeatmapStyle } from './heatmap/heatmapTemplate';
 import { toggleExpanded, toggleTaskRecord } from './heatmap/heatmapHelpers';
@@ -9,6 +9,24 @@ import { toggleExpanded, toggleTaskRecord } from './heatmap/heatmapHelpers';
 const pluginId = PL.id;
 const BLOCK_NAME = 'better-tasks';
 
+const render = async (uuid: string, slot: string, startingDay?: DayType) => {
+  const startDay = startingDay ?? (await getStartingDay());
+  const content = await getGraphData(uuid, startDay);
+  if (!content) {
+    return;
+  }
+
+  const template = getGridTemplate(content, uuid, slot);
+
+  logseq.provideUI({
+    key: BLOCK_NAME + '__' + uuid,
+    slot,
+    reset: true,
+    template,
+  });
+
+  return;
+};
 
 const main = async () => {
   console.info(`#${pluginId}: MAIN`);
@@ -35,36 +53,26 @@ const main = async () => {
       await toggleExpanded(uuid);
     },
     toggleTaskRecord: async (e: any) => {
-      const { uuid, date } = e.dataset;
+      const { uuid, date, slot } = e.dataset;
 
       const dateObj = new Date(date);
       await toggleTaskRecord(uuid, dateObj);
-    }
+      await render(uuid, slot);
+    },
   });
 
   const startingDay = await getStartingDay();
 
-  logseq.App.onMacroRendererSlotted(async ({ slot, payload }) => {
-    const [type] = payload.arguments;
-
-    if (type.startsWith(BLOCK_NAME)) {
-      const content = await getGraphData(payload.uuid, startingDay);
-      if (!content) {
-        return false;
+  logseq.App.onMacroRendererSlotted(
+    async ({ slot, payload }): Promise<void> => {
+      const [type] = payload.arguments;
+      if (!type.startsWith(BLOCK_NAME)) {
+        return;
       }
 
-      const template = getGridTemplate(content, payload.uuid);
-
-      logseq.provideUI({
-        key: BLOCK_NAME + '__' + slot,
-        slot,
-        reset: true,
-        template
-      });
-
-      return true;
+      render(payload.uuid, slot, startingDay);
     }
-  });
+  );
 };
 
 logseq.ready(main).catch(console.error);

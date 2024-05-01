@@ -1,4 +1,4 @@
-export type DayType = 0 | 1 | 2 | 3 | 4 | 5 | 6
+export type DayType = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 const convertStartingDay = (day: number): DayType => {
   return ((day + 1) % 7) as DayType;

@@ -1,52 +1,10 @@
 import { eachDayOfInterval, endOfISOWeekYear, format, isSameDay, parseISO, startOfISOWeekYear } from 'date-fns';
-import { getDayOfWeek, getWeekOfYear } from '../utils';
+import { DATE_REGEX, NEWLINE } from '../common/constants';
 import { DayType } from '../config';
+import { getDoneDatesForTask } from '../repeating-tasks/repeatingTasksHeatmapData';
+import { getDayOfWeek, getWeekOfYear } from '../utils';
+import { getLogbookContent } from '../common/logbook';
 import { checkIfExpanded, getBlockContent } from './heatmapHelpers';
-
-const NEWLINE = '\n';
-const LOGBOOK = ':LOGBOOK:';
-const END = ':END:';
-export const DATE_REGEX = /\[(\d{4}-\d{2}-\d{2})/;
-
-/**
- * Parses the content of a block and returns the logbook
- * @param content The content of the block
- */
-export const getLogbookContent = (content: string): string => {
-  const start = content.indexOf(LOGBOOK) + LOGBOOK.length;
-  const end = content.indexOf(END);
-  return content.substring(start, end - 1);
-};
-
-/**
- * Parses a multiline input string and returns a Set of unique Date objects for lines ending with the "DONE" state.
- *
- * @param {string} input - A multiline string with dates in the format [YYYY-MM-DD].
- * Example:
- * ```
- * * State "DONE" from "LATER" [2023-04-21 Fri 19:20]
- * * State "DONE" from "LATER" [2023-04-22 Sat 14:30]
- * * State "LATER" from "TODO" [2023-04-22 Sat 16:10]
- * * State "DONE" from "LATER" [2023-04-21 Fri 19:20]
- * ```
- */
-const parseDates = (input: string): Set<Date> => {
-  const lines = input.split(NEWLINE);
-  const uniqueDates = new Set<Date>();
-
-  for (const line of lines) {
-    if (line.includes('State "DONE" from')) {
-      const match = line.match(DATE_REGEX);
-      if (match) {
-        const dateObject = parseISO(match[1]);
-        uniqueDates.add(dateObject);
-      }
-    }
-  }
-
-  return uniqueDates;
-};
-
 
 /**
  * Formats a given date as a string in the format that is used in the logbook.
@@ -61,7 +19,10 @@ const formatDateForLogbook = (date: Date): string => {
  * @param date The date to toggle.
  * @param wholeBlock The whole task block content.
  */
-export const toggleTaskRecordText = (date: Date, wholeBlock: string): string => {
+export const toggleTaskRecordText = (
+  date: Date,
+  wholeBlock: string
+): string => {
   const logbook = getLogbookContent(wholeBlock);
 
   const lines = logbook.split(NEWLINE);
@@ -77,7 +38,9 @@ export const toggleTaskRecordText = (date: Date, wholeBlock: string): string => 
   if (doneLineIndex > -1) {
     lines.splice(doneLineIndex, 1);
   } else {
-    const newLine = `* State "DONE" from "LATER" [${formatDateForLogbook(date)}]`;
+    const newLine = `* State "DONE" from "LATER" [${formatDateForLogbook(
+      date
+    )}]`;
     lines.push(newLine);
   }
 
@@ -112,7 +75,10 @@ export type GraphData = {
  * @param startingDay The starting day of the week (0 for Sunday, 1 for Monday, etc.).
  * @returns A matrix of numbers that represents the days of the week and weeks of the year.
  */
-const transformDates = (dates: Set<Date>, startingDay: number): CompletionData => {
+const transformDates = (
+  dates: Set<Date>,
+  startingDay: number
+): CompletionData => {
   const currentDate = new Date();
   const startDate = startOfISOWeekYear(currentDate); // Adjusted start date
   const endDate = endOfISOWeekYear(currentDate);
@@ -126,7 +92,7 @@ const transformDates = (dates: Set<Date>, startingDay: number): CompletionData =
 
   const dateSet = new Set(Array.from(dates).map(date => date.getTime()));
 
-  allDates.forEach(async (date) => {
+  allDates.forEach(async date => {
     const dayOfWeek = getDayOfWeek(date, startingDay);
     const weekOfYear = getWeekOfYear(date);
 
@@ -152,15 +118,14 @@ export const getGraphData = async (
 ): Promise<GraphData | undefined> => {
   const blockContent = await getBlockContent(uuid);
   if (blockContent) {
-    const logbook = getLogbookContent(blockContent);
-    const dates = parseDates(logbook);
+    const dates = await getDoneDatesForTask(uuid);
+
     return {
       uuid,
       isExpanded: checkIfExpanded(blockContent),
       dates,
       completions: transformDates(dates, startingDay),
-      startingDay
+      startingDay,
     };
   }
 };
-

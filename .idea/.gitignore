@@ -3,3 +3,13 @@
 /workspace.xml
 # Editor-based HTTP Client requests
 /httpRequests/
+# GitHub Copilot persisted chat sessions
+/copilot/chatSessions
+# Custom ignored files
+/codeStyles/codeStyleConfig.xml
+/logseq-plugin-better-tasks.iml
+/modules.xml
+/prettier.xml
+/codeStyles/Project.xml
+/inspectionProfiles/Project_Default.xml
+/vcs.xml

@@ -2,7 +2,13 @@ import { GraphData } from './heatmapData';
 import { DayType } from '../config';
 import { add, isSameDay } from 'date-fns';
 import { formatDate } from '../utils';
-import { getDateFromData, getLast7DaysData, getShortXLabels, getYLabelsYear, longXLabels } from './heatmapHelpers';
+import {
+  getDateFromData,
+  getLast7DaysData,
+  getShortXLabels,
+  getYLabelsYear,
+  longXLabels,
+} from './heatmapHelpers';
 
 const CELL_SIZE = '14px';
 const CSS_PREFIX = 'bt-';
@@ -15,7 +21,6 @@ const HEATMAP_X_AXIS_CLASS = `${CSS_PREFIX}heatmap-x-axis`;
 const HEATMAP_TOGGLE_CLASS = `${CSS_PREFIX}heatmap-toggle`;
 const HEATMAP_TOGGLE_SVG_CLASS = `${CSS_PREFIX}heatmap-toggle-svg`;
 const GRID_CONTAINER_CLASS = `${CSS_PREFIX}grid-container`;
-
 
 /**
  * Generates the CSS for the heatmap
@@ -105,8 +110,17 @@ export const getHeatmapStyle = () => `
  * @param isToday - whether the cell represents today
  * @param title - the title for the cell
  */
-const cellPartial = (isCompleted: boolean, isToday: boolean, title: string, date: Date, payloadUuid: string) => `
-    <div  data-uuid='${payloadUuid}' data-date='${date.toISOString()}' data-on-click='toggleTaskRecord' class='${GRID_ITEM_CLASS} ${isCompleted ? 'completed' : ''} ${isToday ? 'today-item' : ''}' title='${title}'>
+const cellPartial = (
+  isCompleted: boolean,
+  isToday: boolean,
+  title: string,
+  date: Date,
+  payloadUuid: string,
+  logseqSlot: string
+) => `
+    <div  data-uuid='${payloadUuid}' data-date='${date.toISOString()}' data-slot='${logseqSlot}' data-on-click='toggleTaskRecord' class='${GRID_ITEM_CLASS} ${
+  isCompleted ? 'completed' : ''
+} ${isToday ? 'today-item' : ''}' title='${title}'>
     </div>
 `;
 
@@ -116,7 +130,9 @@ const cellPartial = (isCompleted: boolean, isToday: boolean, title: string, date
  */
 const yAxisPartial = (startingDay: DayType) => {
   const labels = getYLabelsYear(startingDay);
-  return labels.map((label) => `<div class='${HEATMAP_LABEL_CLASS}'>${label}</div>`).join('\n');
+  return labels
+    .map(label => `<div class='${HEATMAP_LABEL_CLASS}'>${label}</div>`)
+    .join('\n');
 };
 
 /**
@@ -125,7 +141,9 @@ const yAxisPartial = (startingDay: DayType) => {
  * @param payloadUuid - the UUID for the payload
  */
 const arrowPartial = (expanded: boolean | null, payloadUuid: string) => `
-  <button class='${HEATMAP_TOGGLE_CLASS} rotating-arrow ${expanded ? 'not-collapsed' : 'collapsed'}' data-uuid='${payloadUuid}' data-on-click='toggleHeatmap'>
+  <button class='${HEATMAP_TOGGLE_CLASS} rotating-arrow ${
+  expanded ? 'not-collapsed' : 'collapsed'
+}' data-uuid='${payloadUuid}' data-on-click='toggleHeatmap'>
     <svg class='${HEATMAP_TOGGLE_SVG_CLASS}' aria-hidden='true' viewBox='0 0 192 512' fill='currentColor'>
       <path d='M0 384.662V127.338c0-17.818 21.543-26.741 34.142-14.142l128.662 128.662c7.81 7.81 7.81 20.474 0 28.284L34.142 398.804C21.543 411.404 0 402.48 0 384.662z' fill-rule='evenodd'>
       </path>
@@ -139,25 +157,50 @@ const arrowPartial = (expanded: boolean | null, payloadUuid: string) => `
  */
 const xAxisPartial = (data: GraphData) => {
   const labels = data.isExpanded ? longXLabels : getShortXLabels();
-  return labels.map((label, index) => `<div class='${HEATMAP_LABEL_CLASS}'>${index % 2 == 0 ? label : ''}</div>`).join('\n');
+  return labels
+    .map(
+      (label, index) =>
+        `<div class='${HEATMAP_LABEL_CLASS}'>${
+          index % 2 == 0 ? label : ''
+        }</div>`
+    )
+    .join('\n');
 };
 
 /**
  * Generates the grid for the heatmap
  * @param data - the data for the heatmap
  * @param payloadUuid - the UUID for the payload
+ * @param logseqSlot - the logseq UI slot identifier - used for refreshing the UI
  */
-export const getGridTemplate = (data: GraphData, payloadUuid: string) => {
-  const actualData = data.isExpanded ? data.completions : getLast7DaysData(data.dates);
+export const getGridTemplate = (
+  data: GraphData,
+  payloadUuid: string,
+  logseqSlot: string
+) => {
+  const actualData = data.isExpanded
+    ? data.completions
+    : getLast7DaysData(data.dates);
   const startDate = data.isExpanded ? undefined : add(new Date(), { days: -7 });
-  const cells = actualData.map((row, x) => {
-    return row.map((col, y) => {
-      const date = getDateFromData(x, y, data, startDate);
-      const isToday = isSameDay(date, new Date());
-      const title = formatDate(date);
-      return cellPartial(col === 1, isToday, title, date, payloadUuid);
-    }).join('\n');
-  }).join('\n');
+  const cells = actualData
+    .map((row, x) => {
+      return row
+        .map((col, y) => {
+          const date = getDateFromData(x, y, data, startDate);
+          const isToday = isSameDay(date, new Date());
+          const title = formatDate(date);
+          return cellPartial(
+            col === 1,
+            isToday,
+            title,
+            date,
+            payloadUuid,
+            logseqSlot
+          );
+        })
+        .join('\n');
+    })
+    .join('\n');
 
   const containerStyle = `
     grid-template-columns: repeat(${actualData[0].length}, 1fr);

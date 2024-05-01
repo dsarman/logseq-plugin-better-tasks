@@ -2,6 +2,8 @@ import { CompletionData, GraphData, toggleTaskRecordText } from './heatmapData';
 import { getDateFromWeekAndDay } from '../utils';
 import { DayType } from '../config';
 import { add, getDate, startOfDay } from 'date-fns';
+import { LOGBOOK } from '../common/constants';
+import { getTaskReferences } from '../repeating-tasks/repeatingTasksHeatmapData';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 export const getYLabelsYear = (startingDay: DayType) => {
@@ -13,9 +15,7 @@ const DAYS = 7;
  * Returns the completion data for the last 7 days.
  * @param dates A set of dates where each date represents a day that is marked in the logbook as DONE.
  */
-export const getLast7DaysData = (
-  dates: Set<Date>
-): CompletionData => {
+export const getLast7DaysData = (dates: Set<Date>): CompletionData => {
   const start = startOfDay(add(new Date(), { days: -7 }));
   const timeDates = new Set(Array.from(dates).map(date => date.getTime()));
   const result = [];
@@ -38,7 +38,12 @@ export const getLast7DaysData = (
  * @param data The graph data.
  * @param startDate The start date of the graph.
  */
-export const getDateFromData = (x: number, y: number, data: GraphData, startDate?: Date) => {
+export const getDateFromData = (
+  x: number,
+  y: number,
+  data: GraphData,
+  startDate?: Date
+) => {
   return data.isExpanded
     ? getDateFromWeekAndDay(y, x, data.startingDay)
     : getDateFromWeekAndDay(x, y, data.startingDay, startDate);
@@ -70,7 +75,9 @@ export const getShortXLabels = () => {
  * Get the content of a block
  * @param uuid The uuid of the block
  */
-export const getBlockContent = async (uuid: string): Promise<string | undefined> => {
+export const getBlockContent = async (
+  uuid: string
+): Promise<string | undefined> => {
   const block = await logseq.Editor.getBlock(uuid);
   return block?.content;
 };
@@ -127,12 +134,56 @@ export const toggleExpanded = async (uuid: string): Promise<void> => {
   }
 };
 
+const toggleBlock = async (
+  blockUuid: string,
+  date: Date,
+  blockContent: string
+) => {
+  const updatedText = toggleTaskRecordText(date, blockContent);
+  await logseq.Editor.updateBlock(blockUuid, updatedText);
+};
 
-export const toggleTaskRecord = async (uuid: string, date: Date): Promise<void> => {
+export const toggleTaskRecord = async (
+  uuid: string,
+  date: Date
+): Promise<void> => {
   const blockContent = await getBlockContent(uuid);
-  if (blockContent) {
-    const updatedText = toggleTaskRecordText(date, blockContent);
-    await logseq.Editor.updateBlock(uuid, updatedText);
+  if (!blockContent) {
+    console.error('Toggled block not found');
+    return;
   }
 
+  const hasLogbook = blockContent.includes(LOGBOOK);
+
+  if (hasLogbook) {
+    await toggleBlock(uuid, date, blockContent);
+  } else {
+    const block = await logseq.Editor.getBlock(uuid);
+    if (!block) {
+      console.error('Toggled block not found');
+      return;
+    }
+
+    const taskReferences = await getTaskReferences(uuid);
+    const referenceWithLogbook = taskReferences.find(refBlock =>
+      refBlock.content.includes(LOGBOOK)
+    );
+    if (!referenceWithLogbook) {
+      console.error(
+        'Did not found any block with logbook for task block: ' + uuid
+      );
+      return;
+    }
+
+    const refBlockContent = await getBlockContent(referenceWithLogbook.uuid);
+    if (!refBlockContent) {
+      console.error(
+        'Did not found any content for reference with logbook: ',
+        referenceWithLogbook
+      );
+      return;
+    }
+
+    await toggleBlock(referenceWithLogbook.uuid, date, refBlockContent);
+  }
 };
