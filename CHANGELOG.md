@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.3.0...v1.4.0) (2024-05-16)
+
+
+### Features
+
+* new task completion progress bar ([5eceb72](https://github.com/dsarman/logseq-plugin-better-tasks/commit/5eceb72a4bc41b3b0727b496da6a4cf9886d3295))
+
 # [1.3.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.2.0...v1.3.0) (2024-05-01)
 
 
