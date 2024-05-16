@@ -24,9 +24,9 @@ The end result should look like this:
 ```
 
 - Minimal heatmap view
-  ![label](images/heatmap-simple.png)
+  ![minimal heatmap view](images/heatmap-simple.png)
 - Full heatmap view
-  ![label](images/heatmap-full.png)
+  ![full heatmap view](images/heatmap-full.png)
 
 - Clicking on a day will toggle the completion of the task on that day.
 
@@ -49,9 +49,21 @@ theme is not supported).
 }
 ```
 
-## Planned
+### Task completion progress bar
 
-- [ ] More heatmap views for other repetition types (weekly, monthly)
-- [ ] "Lax" task repetition.
-    - For example when you have a weekly task that you missed, the next date upon completion would be changed to an
-      occurence in the future, instead of the missed one in the past like in the default behavior.
+Visual indicator of progress for nested tasks.
+
+#### Usage
+
+Just put the text `{{renderer better-tasks-progress}}` in the block that is a parent to all the tasks you want to
+visualize.
+
+```markdown
+- Daily tasks {{renderer better-tasks-summary}}
+    - DONE Done tasks
+    - LATER Not yet done task
+    - NOW In Progress task
+    - CANCELED Cancelled task
+```
+
+![task completion bar](images/task-summary.png)

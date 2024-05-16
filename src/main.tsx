@@ -5,11 +5,21 @@ import { DayType, getStartingDay } from './config';
 import { getGraphData } from './heatmap/heatmapData';
 import { getGridTemplate, getHeatmapStyle } from './heatmap/heatmapTemplate';
 import { toggleExpanded, toggleTaskRecord } from './heatmap/heatmapHelpers';
+import { getTaskStats } from './task-summary/taskSummaryData';
+import {
+  getTaskStatsTemplate,
+  getTaskStatusStyle,
+} from './task-summary/taskSummaryTemplate';
 
 const pluginId = PL.id;
 const BLOCK_NAME = 'better-tasks';
+const TASK_SUMMARY = 'better-tasks-summary';
 
-const render = async (uuid: string, slot: string, startingDay?: DayType) => {
+const renderHeatmap = async (
+  uuid: string,
+  slot: string,
+  startingDay?: DayType
+) => {
   const startDay = startingDay ?? (await getStartingDay());
   const content = await getGraphData(uuid, startDay);
   if (!content) {
@@ -28,6 +38,18 @@ const render = async (uuid: string, slot: string, startingDay?: DayType) => {
   return;
 };
 
+const renderTaskSummary = async (uuid: string, slot: string) => {
+  const taskStats = await getTaskStats(uuid);
+  const template = getTaskStatsTemplate(taskStats);
+
+  logseq.provideUI({
+    key: BLOCK_NAME + '__' + uuid,
+    slot,
+    reset: true,
+    template,
+  });
+};
+
 const main = async () => {
   console.info(`#${pluginId}: MAIN`);
 
@@ -35,7 +57,7 @@ const main = async () => {
     .better-tasks-container {
       display: flex;
       flex-direction: row;
-      left: -20px;src/config.ts
+      left: -20px;
       top: 5px;
       position: relative;
     }
@@ -45,6 +67,7 @@ const main = async () => {
     }
     
     ${getHeatmapStyle()}
+    ${getTaskStatusStyle()}
   `);
 
   logseq.provideModel({
@@ -57,7 +80,7 @@ const main = async () => {
 
       const dateObj = new Date(date);
       await toggleTaskRecord(uuid, dateObj);
-      await render(uuid, slot);
+      await renderHeatmap(uuid, slot);
     },
   });
 
@@ -68,9 +91,11 @@ const main = async () => {
       const [type] = payload.arguments;
       if (!type.startsWith(BLOCK_NAME)) {
         return;
+      } else if (type === BLOCK_NAME) {
+        renderHeatmap(payload.uuid, slot, startingDay);
+      } else if (type === TASK_SUMMARY) {
+        renderTaskSummary(payload.uuid, slot);
       }
-
-      render(payload.uuid, slot, startingDay);
     }
   );
 };
