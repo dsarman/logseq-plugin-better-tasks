@@ -1,3 +1,10 @@
+## [1.4.1](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.4.0...v1.4.1) (2024-05-30)
+
+
+### Bug Fixes
+
+* expanded heatmap not rendering ([2d4ff57](https://github.com/dsarman/logseq-plugin-better-tasks/commit/2d4ff574b72197c24a20c5de93717fd09f2c52c3))
+
 # [1.4.0](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.3.0...v1.4.0) (2024-05-16)
 
 
