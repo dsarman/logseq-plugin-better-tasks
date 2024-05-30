@@ -91,10 +91,10 @@ const main = async () => {
       const [type] = payload.arguments;
       if (!type.startsWith(BLOCK_NAME)) {
         return;
-      } else if (type === BLOCK_NAME) {
-        renderHeatmap(payload.uuid, slot, startingDay);
       } else if (type === TASK_SUMMARY) {
         renderTaskSummary(payload.uuid, slot);
+      } else if (type.startsWith(BLOCK_NAME)) {
+        renderHeatmap(payload.uuid, slot, startingDay);
       }
     }
   );
