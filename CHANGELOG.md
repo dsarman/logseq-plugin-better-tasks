@@ -1,3 +1,10 @@
+## [1.4.2](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.4.1...v1.4.2) (2024-06-13)
+
+
+### Bug Fixes
+
+* heatmap not taking root task into account ([69cb9a6](https://github.com/dsarman/logseq-plugin-better-tasks/commit/69cb9a6e7ce55e95bf8e6e17ba308d57aa582ea9))
+
 ## [1.4.1](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.4.0...v1.4.1) (2024-05-30)
 
 
