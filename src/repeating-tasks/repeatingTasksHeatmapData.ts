@@ -67,6 +67,10 @@ export const getDoneDatesForTask = async (
   taskUuid: string
 ): Promise<Set<Date>> => {
   const mappedReferences = await getTaskReferences(taskUuid);
+  const rootTask = await logseq.Editor.getBlock(taskUuid);
+  if (rootTask) {
+    mappedReferences.push(rootTask);
+  }
 
   const allDates = new Set<Date>();
   for (const reference of mappedReferences) {

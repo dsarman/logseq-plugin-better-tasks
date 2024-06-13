@@ -1,7 +1,11 @@
 import { BlockEntity } from '@logseq/libs/dist/LSPlugin';
 
-export function isBlockEntity(block: any): block is BlockEntity {
-  return (block as BlockEntity).id !== undefined;
+export function isBlockEntity(block: unknown): block is BlockEntity {
+  return (
+    (block as BlockEntity).id !== undefined &&
+    (block as BlockEntity).uuid !== undefined &&
+    (block as BlockEntity).content !== undefined
+  );
 }
 
 export const TaskStates = {
