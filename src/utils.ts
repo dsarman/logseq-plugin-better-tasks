@@ -16,9 +16,23 @@ export const getDateFromWeekAndDay = (
   startingDay: DayType,
   startDate?: Date
 ): Date => {
-  const date = addWeeks(startDate ?? new Date(new Date().getFullYear(), 0, 1), weekNumber);
-  const offset = startDate ? 0 : startingDay - 1;
-  return addDays(date, dayNumber + offset);
+  if (startDate) {
+    const date = addWeeks(startDate, weekNumber);
+    return addDays(date, dayNumber);
+  } else {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const firstDayOfYear = new Date(currentYear, 0, 1);
+
+    // Calculate the day of week offset (0-6) for January 1st
+    const firstDayOffset = firstDayOfYear.getDay();
+
+    // Adjust for starting day preference
+    const adjustedOffset = (firstDayOffset - startingDay + 7) % 7;
+    const daysSinceYearStart = weekNumber * 7 + dayNumber - adjustedOffset;
+
+    return new Date(currentYear, 0, 1 + daysSinceYearStart);
+  }
 };
 
 /**
