@@ -1,3 +1,11 @@
+## [1.4.3](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.4.2...v1.4.3) (2025-02-25)
+
+
+### Bug Fixes
+
+* show all days in a year ([0099d04](https://github.com/dsarman/logseq-plugin-better-tasks/commit/0099d041bc9c848f60567badc63c82335cbd553e))
+* wrong current date highlighted ([7142313](https://github.com/dsarman/logseq-plugin-better-tasks/commit/71423134e663ed7a1e8fd45cd18275ba4552e22d))
+
 ## [1.4.2](https://github.com/dsarman/logseq-plugin-better-tasks/compare/v1.4.1...v1.4.2) (2024-06-13)
 
 
