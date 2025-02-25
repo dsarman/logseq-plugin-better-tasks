@@ -1,18 +1,19 @@
 import { GraphData } from './heatmapData';
 import { DayType } from '../config';
-import { add, isSameDay } from 'date-fns';
+import { add, getYear, isSameDay } from 'date-fns';
 import { formatDate } from '../utils';
 import {
   getDateFromData,
   getLast7DaysData,
+  getLongXLabels,
   getShortXLabels,
   getYLabelsYear,
-  longXLabels,
 } from './heatmapHelpers';
 
 const CELL_SIZE = '14px';
 const CSS_PREFIX = 'bt-';
 const GRID_ITEM_CLASS = `${CSS_PREFIX}grid-item`;
+const GRID_ITEM_DISPLAYED_CLASS = `${GRID_ITEM_CLASS}grid-item-displayed`;
 const HEATMAP_LABEL_CLASS = `${CSS_PREFIX}heatmap-label`;
 const ROOT_CONTAINER_CLASS = `${CSS_PREFIX}root-container`;
 const HEATMAP_CONTAINER_CLASS = `${CSS_PREFIX}heatmap-container`;
@@ -61,8 +62,8 @@ export const getHeatmapStyle = () => `
         text-align:center;
         width: ${CELL_SIZE};
     }
+    
     .${GRID_CONTAINER_CLASS} {
-        cursor: pointer;
         display: grid;
 
         width: fit-content;
@@ -72,10 +73,14 @@ export const getHeatmapStyle = () => `
     .${GRID_ITEM_CLASS} {
         width: ${CELL_SIZE};
         height: ${CELL_SIZE};
+    }
+    
+    .${GRID_ITEM_DISPLAYED_CLASS} {
         border-width: 1px 1px 0 0;
         border-color: var(--ls-primary-text-color, grey);
         border-radius: 4px;
-    }
+        cursor: pointer;
+    }    
 
     .${GRID_ITEM_CLASS}.today-item {
         border-color: var(--ct-warning-color, pink) ;
@@ -113,16 +118,31 @@ export const getHeatmapStyle = () => `
 const cellPartial = (
   isCompleted: boolean,
   isToday: boolean,
+  isDisplayed: boolean,
   title: string,
   date: Date,
   payloadUuid: string,
   logseqSlot: string
-) => `
-    <div  data-uuid='${payloadUuid}' data-date='${date.toISOString()}' data-slot='${logseqSlot}' data-on-click='toggleTaskRecord' class='${GRID_ITEM_CLASS} ${
-  isCompleted ? 'completed' : ''
-} ${isToday ? 'today-item' : ''}' title='${title}'>
-    </div>
+) => {
+  const completedClass = isCompleted ? 'completed' : '';
+  const todayClass = isToday ? 'today-item' : '';
+  const displayedClass = isDisplayed ? GRID_ITEM_DISPLAYED_CLASS : '';
+
+  const props = isDisplayed
+    ? `data-uuid='${payloadUuid}'
+      data-date='${date.toISOString()}'
+      data-slot='${logseqSlot}'
+      data-on-click='toggleTaskRecord'`
+    : '';
+
+  return `
+    <div
+      ${props} 
+      class='${GRID_ITEM_CLASS} ${displayedClass} ${completedClass} ${todayClass}'
+      title='${title}'
+    ></div>
 `;
+};
 
 /**
  * Generates the y-axis for the heatmap
@@ -156,7 +176,9 @@ const arrowPartial = (expanded: boolean | null, payloadUuid: string) => `
  * @param data - the data for the heatmap
  */
 const xAxisPartial = (data: GraphData) => {
-  const labels = data.isExpanded ? longXLabels : getShortXLabels();
+  const labels = data.isExpanded
+    ? getLongXLabels(data.completions)
+    : getShortXLabels();
   return labels
     .map(
       (label, index) =>
@@ -182,16 +204,19 @@ export const getGridTemplate = (
     ? data.completions
     : getLast7DaysData(data.dates);
   const startDate = data.isExpanded ? undefined : add(new Date(), { days: -7 });
+  const displayedYear = getYear(new Date()); //TODO: actually use displayed year, not current one
   const cells = actualData
     .map((row, x) => {
       return row
         .map((col, y) => {
           const date = getDateFromData(x, y, data, startDate);
+          const isThisYear = getYear(date) === displayedYear;
           const isToday = isSameDay(date, new Date());
           const title = formatDate(date);
           return cellPartial(
             col === 1,
             isToday,
+            isThisYear,
             title,
             date,
             payloadUuid,

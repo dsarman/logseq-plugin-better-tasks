@@ -85,7 +85,7 @@ const transformDates = (
   const dateInterval = { start: startDate, end: endDate };
   const allDates = eachDayOfInterval(dateInterval);
 
-  const maxWeeks = getWeekOfYear(endDate);
+  const maxWeeks = getWeekOfYear(endDate) + 2;
   const matrix: number[][] = Array.from({ length: 7 }, () =>
     Array(maxWeeks).fill(0)
   );

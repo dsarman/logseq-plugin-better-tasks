@@ -49,11 +49,8 @@ export const getDateFromData = (
     : getDateFromWeekAndDay(x, y, data.startingDay, startDate);
 };
 
-/**
- * An array of strings that represents the labels for the x-axis of the matrix for a year view.
- * Each element of the array is a string that represents the number of the week of the year.
- */
-export const longXLabels = new Array(52).fill(0).map((_, i) => `${i + 1}`);
+export const getLongXLabels = (completions: CompletionData) =>
+  new Array(completions[0].length).fill(0).map((_, i) => `${i + 1}`);
 
 /**
  * Returns an array of strings that represents the labels for the x-axis of the matrix for a week view.
